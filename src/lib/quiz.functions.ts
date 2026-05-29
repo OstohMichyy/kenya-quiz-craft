@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateObject, NoObjectGeneratedError } from "ai";
+import { generateObject, generateText, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
@@ -42,6 +42,16 @@ function extractLikelyJson(text: string) {
   }
 
   return cleaned;
+}
+
+function parseQuizFromText(text: string) {
+  const parsed = JSON.parse(extractLikelyJson(text)) as unknown;
+  const candidate =
+    parsed && typeof parsed === "object" && "quiz" in parsed
+      ? (parsed as { quiz: unknown }).quiz
+      : parsed;
+
+  return QuizSchema.parse(candidate);
 }
 
 

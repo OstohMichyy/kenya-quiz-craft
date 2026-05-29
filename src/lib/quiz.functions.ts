@@ -76,8 +76,8 @@ ${data.passage}
       system,
       prompt,
       schema: QuizSchema,
-      mode: "json",
     });
+
 
     return object;
   });

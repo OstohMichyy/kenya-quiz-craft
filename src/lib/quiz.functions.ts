@@ -132,6 +132,36 @@ ${data.passage}
           textPreview: error.text?.slice(0, 800),
         });
 
+        try {
+          const { text } = await generateText({
+            model,
+            system,
+            prompt: `${prompt}
+
+Return valid JSON only, with this exact shape:
+{
+  "title": "string",
+  "curriculumNote": "string",
+  "questions": [
+    {
+      "question": "string",
+      "type": "mcq | short | essay | fill_blank | true_false | matching | structured",
+      "options": ["string"],
+      "answer": "string",
+      "explanation": "string",
+      "steps": ["string"]
+    }
+  ]
+}`,
+            temperature: 0.1,
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
+          });
+
+          return parseQuizFromText(text);
+        } catch (fallbackError) {
+          console.error("StudyForge AI JSON fallback failed", fallbackError);
+        }
+
         throw new Error(
           "The AI response was incomplete or not in the expected quiz format. Please try again with fewer questions or a shorter passage.",
         );

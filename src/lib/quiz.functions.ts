@@ -1,15 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateText, Output } from "ai";
+import { generateObject } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 const QuestionSchema = z.object({
-  question: z.string(),
-  type: z.enum(["mcq", "short", "essay", "fill_blank", "true_false", "matching", "structured"]),
-  options: z.array(z.string()).optional(),
-  answer: z.string(),
-  explanation: z.string(),
-  steps: z.array(z.string()).optional(),
+  question: z.string().describe("The question text"),
+  type: z
+    .string()
+    .describe("One of: mcq, short, essay, fill_blank, true_false, matching, structured"),
+  options: z
+    .array(z.string())
+    .describe("Answer options for MCQ/true_false/matching. Empty array if not applicable."),
+  answer: z.string().describe("The correct answer (full text, not a letter)"),
+  explanation: z.string().describe("Why the answer is correct"),
+  steps: z
+    .array(z.string())
+    .describe("Step-by-step working for Mathematics. Empty array if not applicable."),
 });
 
 const QuizSchema = z.object({
@@ -17,6 +23,7 @@ const QuizSchema = z.object({
   curriculumNote: z.string(),
   questions: z.array(QuestionSchema),
 });
+
 
 const InputSchema = z.object({
   mode: z.enum(["topic", "passage"]),
@@ -64,15 +71,17 @@ Passage:
 ${data.passage}
 """`;
 
-    const { output } = await generateText({
+    const { object } = await generateObject({
       model,
       system,
       prompt,
-      output: Output.object({ schema: QuizSchema }),
+      schema: QuizSchema,
+      mode: "json",
     });
 
-    return output;
+    return object;
   });
+
 
 export type Quiz = z.infer<typeof QuizSchema>;
 export type Question = z.infer<typeof QuestionSchema>;

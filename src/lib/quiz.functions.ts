@@ -1,28 +1,48 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateObject } from "ai";
+import { generateObject, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 const QuestionSchema = z.object({
-  question: z.string().describe("The question text"),
+  question: z.coerce.string().describe("The question text"),
   type: z
-    .string()
+    .coerce.string()
     .describe("One of: mcq, short, essay, fill_blank, true_false, matching, structured"),
   options: z
-    .array(z.string())
+    .array(z.coerce.string())
+    .default([])
     .describe("Answer options for MCQ/true_false/matching. Empty array if not applicable."),
-  answer: z.string().describe("The correct answer (full text, not a letter)"),
-  explanation: z.string().describe("Why the answer is correct"),
+  answer: z.coerce.string().describe("The correct answer (full text, not a letter)"),
+  explanation: z.coerce.string().describe("Why the answer is correct"),
   steps: z
-    .array(z.string())
+    .array(z.coerce.string())
+    .default([])
     .describe("Step-by-step working for Mathematics. Empty array if not applicable."),
 });
 
 const QuizSchema = z.object({
-  title: z.string(),
-  curriculumNote: z.string(),
-  questions: z.array(QuestionSchema),
+  title: z.coerce.string(),
+  curriculumNote: z.coerce.string(),
+  questions: z.array(QuestionSchema).min(1),
 });
+
+const MAX_OUTPUT_TOKENS = 8_000;
+
+function extractLikelyJson(text: string) {
+  let cleaned = text
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+
+  const objectStart = cleaned.indexOf("{");
+  const objectEnd = cleaned.lastIndexOf("}");
+
+  if (objectStart !== -1 && objectEnd > objectStart) {
+    cleaned = cleaned.slice(objectStart, objectEnd + 1);
+  }
+
+  return cleaned;
+}
 
 
 const InputSchema = z.object({

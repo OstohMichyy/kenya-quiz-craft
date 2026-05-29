@@ -75,6 +75,9 @@ Rules:
 - For Mathematics, ALWAYS include detailed step-by-step solutions in the "steps" field, with formulas and KNEC-style working.
 - For MCQs, always provide exactly 4 options labeled A-D inside the "options" array (no letter prefix) and put the FULL correct option text in "answer".
 - For true/false, "options" = ["True", "False"], "answer" is "True" or "False".
+- For every non-Mathematics question, return "steps" as an empty array.
+- For every non-choice question, return "options" as an empty array.
+- Return only the structured object requested by the schema. Do not include markdown, code fences, labels, comments, or any text outside the object.
 - Explanations must clarify reasoning and reference the concept tested.`;
 
     const prompt =
@@ -91,15 +94,41 @@ Passage:
 ${data.passage}
 """`;
 
-    const { object } = await generateObject({
-      model,
-      system,
-      prompt,
-      schema: QuizSchema,
-    });
+    try {
+      const { object, finishReason, usage } = await generateObject({
+        model,
+        system,
+        prompt,
+        schema: QuizSchema,
+        schemaName: "StudyForgeQuiz",
+        schemaDescription:
+          "A curriculum-aligned quiz with a title, curriculum note, and complete questions including answer explanations.",
+        temperature: 0.2,
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        experimental_repairText: async ({ text }) => extractLikelyJson(text),
+      });
 
+      if (finishReason === "length") {
+        console.warn("StudyForge quiz generation reached the output limit", { usage });
+      }
 
-    return object;
+      return object;
+    } catch (error) {
+      if (NoObjectGeneratedError.isInstance(error)) {
+        console.error("StudyForge AI structured output failed", {
+          cause: error.cause,
+          finishReason: error.finishReason,
+          usage: error.usage,
+          textPreview: error.text?.slice(0, 800),
+        });
+
+        throw new Error(
+          "The AI response was incomplete or not in the expected quiz format. Please try again with fewer questions or a shorter passage.",
+        );
+      }
+
+      throw error;
+    }
   });
 
 

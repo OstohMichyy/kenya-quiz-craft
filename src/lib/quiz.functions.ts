@@ -1,28 +1,58 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateObject } from "ai";
+import { generateObject, generateText, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 const QuestionSchema = z.object({
-  question: z.string().describe("The question text"),
+  question: z.coerce.string().describe("The question text"),
   type: z
-    .string()
+    .coerce.string()
     .describe("One of: mcq, short, essay, fill_blank, true_false, matching, structured"),
   options: z
-    .array(z.string())
+    .array(z.coerce.string())
+    .default([])
     .describe("Answer options for MCQ/true_false/matching. Empty array if not applicable."),
-  answer: z.string().describe("The correct answer (full text, not a letter)"),
-  explanation: z.string().describe("Why the answer is correct"),
+  answer: z.coerce.string().describe("The correct answer (full text, not a letter)"),
+  explanation: z.coerce.string().describe("Why the answer is correct"),
   steps: z
-    .array(z.string())
+    .array(z.coerce.string())
+    .default([])
     .describe("Step-by-step working for Mathematics. Empty array if not applicable."),
 });
 
 const QuizSchema = z.object({
-  title: z.string(),
-  curriculumNote: z.string(),
-  questions: z.array(QuestionSchema),
+  title: z.coerce.string(),
+  curriculumNote: z.coerce.string(),
+  questions: z.array(QuestionSchema).min(1),
 });
+
+const MAX_OUTPUT_TOKENS = 8_000;
+
+function extractLikelyJson(text: string) {
+  let cleaned = text
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+
+  const objectStart = cleaned.indexOf("{");
+  const objectEnd = cleaned.lastIndexOf("}");
+
+  if (objectStart !== -1 && objectEnd > objectStart) {
+    cleaned = cleaned.slice(objectStart, objectEnd + 1);
+  }
+
+  return cleaned;
+}
+
+function parseQuizFromText(text: string) {
+  const parsed = JSON.parse(extractLikelyJson(text)) as unknown;
+  const candidate =
+    parsed && typeof parsed === "object" && "quiz" in parsed
+      ? (parsed as { quiz: unknown }).quiz
+      : parsed;
+
+  return QuizSchema.parse(candidate);
+}
 
 
 const InputSchema = z.object({
@@ -55,6 +85,9 @@ Rules:
 - For Mathematics, ALWAYS include detailed step-by-step solutions in the "steps" field, with formulas and KNEC-style working.
 - For MCQs, always provide exactly 4 options labeled A-D inside the "options" array (no letter prefix) and put the FULL correct option text in "answer".
 - For true/false, "options" = ["True", "False"], "answer" is "True" or "False".
+- For every non-Mathematics question, return "steps" as an empty array.
+- For every non-choice question, return "options" as an empty array.
+- Return only the structured object requested by the schema. Do not include markdown, code fences, labels, comments, or any text outside the object.
 - Explanations must clarify reasoning and reference the concept tested.`;
 
     const prompt =
@@ -71,15 +104,71 @@ Passage:
 ${data.passage}
 """`;
 
-    const { object } = await generateObject({
-      model,
-      system,
-      prompt,
-      schema: QuizSchema,
-    });
+    try {
+      const { object, finishReason, usage } = await generateObject({
+        model,
+        system,
+        prompt,
+        schema: QuizSchema,
+        schemaName: "StudyForgeQuiz",
+        schemaDescription:
+          "A curriculum-aligned quiz with a title, curriculum note, and complete questions including answer explanations.",
+        temperature: 0.2,
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        experimental_repairText: async ({ text }) => extractLikelyJson(text),
+      });
 
+      if (finishReason === "length") {
+        console.warn("StudyForge quiz generation reached the output limit", { usage });
+      }
 
-    return object;
+      return object;
+    } catch (error) {
+      if (NoObjectGeneratedError.isInstance(error)) {
+        console.error("StudyForge AI structured output failed", {
+          cause: error.cause,
+          finishReason: error.finishReason,
+          usage: error.usage,
+          textPreview: error.text?.slice(0, 800),
+        });
+
+        try {
+          const { text } = await generateText({
+            model,
+            system,
+            prompt: `${prompt}
+
+Return valid JSON only, with this exact shape:
+{
+  "title": "string",
+  "curriculumNote": "string",
+  "questions": [
+    {
+      "question": "string",
+      "type": "mcq | short | essay | fill_blank | true_false | matching | structured",
+      "options": ["string"],
+      "answer": "string",
+      "explanation": "string",
+      "steps": ["string"]
+    }
+  ]
+}`,
+            temperature: 0.1,
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
+          });
+
+          return parseQuizFromText(text);
+        } catch (fallbackError) {
+          console.error("StudyForge AI JSON fallback failed", fallbackError);
+        }
+
+        throw new Error(
+          "The AI response was incomplete or not in the expected quiz format. Please try again with fewer questions or a shorter passage.",
+        );
+      }
+
+      throw error;
+    }
   });
 
 

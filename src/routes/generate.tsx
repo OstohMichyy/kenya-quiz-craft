@@ -199,6 +199,15 @@ function GeneratePage() {
                       className="input-base"
                     />
                   </Field>
+                  <Field label="Unit / Course code (optional)">
+                    <input
+                      type="text"
+                      placeholder="e.g. SMA 2101 Calculus I, BBIT 3104, CPA Section 4"
+                      value={unit}
+                      onChange={(e) => setUnit(e.target.value)}
+                      className="input-base"
+                    />
+                  </Field>
                   <Field label="Class / Level">
                     <select
                       value={level}

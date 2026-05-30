@@ -10,7 +10,10 @@ import {
   FileText,
   Loader2,
   RotateCcw,
+  Send,
   Sparkles,
+  Trophy,
+  XCircle,
 } from "lucide-react";
 import { AnimatedBackground } from "@/components/animated-bg";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";

@@ -83,13 +83,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "AI-powered quiz and revision generator aligned with CBC/CBE, KNEC and KCSE standards. Built for Kenyan students, teachers and tutors.",
       },
-      { property: "og:title", content: "StudyForge — AI Quiz Generator" },
+      { property: "og:title", content: "StudyForge — AI Quiz Generator for Kenyan Students" },
       {
         property: "og:description",
         content: "Generate curriculum-aligned quizzes, revision questions and step-by-step solutions instantly.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "StudyForge — AI Quiz Generator for Kenyan Students" },
+      { name: "description", content: "StudyForge AI generates custom quizzes, assignments, and explanations for students and educators." },
+      { property: "og:description", content: "StudyForge AI generates custom quizzes, assignments, and explanations for students and educators." },
+      { name: "twitter:description", content: "StudyForge AI generates custom quizzes, assignments, and explanations for students and educators." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e07e4678-db2b-460c-95d6-594066d62758/id-preview-95143681--332b3fa6-b049-4b26-8c58-f46fa7ad2c41.lovable.app-1780177800845.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e07e4678-db2b-460c-95d6-594066d62758/id-preview-95143681--332b3fa6-b049-4b26-8c58-f46fa7ad2c41.lovable.app-1780177800845.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

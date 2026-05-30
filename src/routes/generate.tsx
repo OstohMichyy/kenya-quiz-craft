@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
+import { AnimatedBackground } from "@/components/animated-bg";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { generateQuiz, type Quiz } from "@/lib/quiz.functions";
 
@@ -30,7 +31,26 @@ export const Route = createFileRoute("/generate")({
 });
 
 const SUBJECTS = [
-  // School subjects
+  // CBC Primary (Grade 1-6) learning areas
+  "Literacy", "Indigenous Languages", "English (CBC)", "Kiswahili (CBC)",
+  "Mathematics (CBC)", "Environmental Activities", "Hygiene & Nutrition",
+  "Religious Education (CBC)", "Movement & Creative Activities",
+  "Science & Technology (CBC)", "Social Studies (CBC)", "Agriculture (CBC)",
+  "Home Science (CBC)", "Creative Arts (CBC)", "Physical & Health Education",
+  // CBC Junior School (JSS Grade 7-9)
+  "Integrated Science (JSS)", "Pre-Technical Studies (JSS)",
+  "Agriculture & Nutrition (JSS)", "Social Studies (JSS)",
+  "Creative Arts & Sports (JSS)", "Religious Education (JSS)",
+  "Health Education (JSS)", "Life Skills Education (JSS)",
+  "Visual Arts (JSS)", "Performing Arts (JSS)", "Computer Science (JSS)",
+  "Kenyan Sign Language", "French", "German", "Mandarin", "Arabic",
+  // CBC Senior School pathways (Grade 10-12)
+  "Advanced Mathematics", "Biology (Senior)", "Chemistry (Senior)",
+  "Physics (Senior)", "General Science", "Computer Studies (Senior)",
+  "Business Studies (Senior)", "Geography (Senior)", "History & Citizenship",
+  "Literature in English", "Fasihi ya Kiswahili", "Drama & Theatre", "Music",
+  "Sports & Recreation", "Community Service Learning",
+  // Traditional 8-4-4 school subjects
   "Mathematics", "English", "Kiswahili", "Biology", "Chemistry", "Physics",
   "Geography", "History", "CRE", "IRE", "HRE", "Agriculture",
   "Computer Studies", "Business Studies",

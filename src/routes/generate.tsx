@@ -6,7 +6,6 @@ import {
   BookOpen,
   CheckCircle2,
   Eye,
-  EyeOff,
   FileText,
   Loader2,
   RotateCcw,

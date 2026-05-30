@@ -87,6 +87,7 @@ function GeneratePage() {
   const [mode, setMode] = useState<Mode>("topic");
   const [subject, setSubject] = useState("Mathematics");
   const [topic, setTopic] = useState("");
+  const [unit, setUnit] = useState("");
   const [level, setLevel] = useState("Form 4 (KCSE)");
   const [passage, setPassage] = useState("");
   const [count, setCount] = useState(5);

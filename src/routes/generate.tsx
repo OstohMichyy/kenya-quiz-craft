@@ -154,10 +154,12 @@ function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      <AnimatedBackground />
       <SiteHeader />
 
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-primary-glow" />

@@ -115,7 +115,7 @@ function GeneratePage() {
         data: {
           mode,
           subject: mode === "topic" ? subject : undefined,
-          topic: mode === "topic" ? topic : undefined,
+          topic: mode === "topic" ? (unit.trim() ? `${topic} (Unit/Course: ${unit.trim()})` : topic) : undefined,
           level: mode === "topic" ? level : undefined,
           passage: mode === "passage" ? passage : undefined,
           count,

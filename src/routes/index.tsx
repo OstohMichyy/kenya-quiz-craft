@@ -10,6 +10,7 @@ import {
   Target,
   Zap,
 } from "lucide-react";
+import { AnimatedBackground } from "@/components/animated-bg";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 
 export const Route = createFileRoute("/")({
@@ -72,10 +73,8 @@ function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 opacity-40">
-          <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-primary-glow/30 blur-3xl" />
-          <div className="absolute top-40 right-1/4 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
-        </div>
+        <AnimatedBackground />
+
 
         <div className="mx-auto max-w-7xl px-4 pt-20 pb-24 sm:px-6 lg:px-8 lg:pt-28 lg:pb-32">
           <div className="mx-auto max-w-3xl text-center">

@@ -126,4 +126,28 @@
     background-clip: text;
     color: transparent;
   }
+
+  .animate-bg-pan { animation: bg-pan 28s ease-in-out infinite alternate; }
+  .animate-float-slow { animation: float-slow 14s ease-in-out infinite; }
+  .animate-float-slower { animation: float-slow 22s ease-in-out infinite reverse; }
+  .animate-grid-drift { animation: grid-drift 40s linear infinite; }
+}
+
+@keyframes bg-pan {
+  0%   { transform: scale(1.05) translate3d(0, 0, 0); }
+  100% { transform: scale(1.15) translate3d(-2%, -1%, 0); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(2%, -3%, 0) scale(1.08); }
+}
+@keyframes grid-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 220px 220px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bg-pan, .animate-float-slow, .animate-float-slower, .animate-grid-drift {
+    animation: none !important;
+  }
 }

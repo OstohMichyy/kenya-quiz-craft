@@ -6,12 +6,15 @@ import {
   BookOpen,
   CheckCircle2,
   Eye,
-  EyeOff,
   FileText,
   Loader2,
   RotateCcw,
+  Send,
   Sparkles,
+  Trophy,
+  XCircle,
 } from "lucide-react";
+import { AnimatedBackground } from "@/components/animated-bg";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { generateQuiz, type Quiz } from "@/lib/quiz.functions";
 
@@ -30,7 +33,26 @@ export const Route = createFileRoute("/generate")({
 });
 
 const SUBJECTS = [
-  // School subjects
+  // CBC Primary (Grade 1-6) learning areas
+  "Literacy", "Indigenous Languages", "English (CBC)", "Kiswahili (CBC)",
+  "Mathematics (CBC)", "Environmental Activities", "Hygiene & Nutrition",
+  "Religious Education (CBC)", "Movement & Creative Activities",
+  "Science & Technology (CBC)", "Social Studies (CBC)", "Agriculture (CBC)",
+  "Home Science (CBC)", "Creative Arts (CBC)", "Physical & Health Education",
+  // CBC Junior School (JSS Grade 7-9)
+  "Integrated Science (JSS)", "Pre-Technical Studies (JSS)",
+  "Agriculture & Nutrition (JSS)", "Social Studies (JSS)",
+  "Creative Arts & Sports (JSS)", "Religious Education (JSS)",
+  "Health Education (JSS)", "Life Skills Education (JSS)",
+  "Visual Arts (JSS)", "Performing Arts (JSS)", "Computer Science (JSS)",
+  "Kenyan Sign Language", "French", "German", "Mandarin", "Arabic",
+  // CBC Senior School pathways (Grade 10-12)
+  "Advanced Mathematics", "Biology (Senior)", "Chemistry (Senior)",
+  "Physics (Senior)", "General Science", "Computer Studies (Senior)",
+  "Business Studies (Senior)", "Geography (Senior)", "History & Citizenship",
+  "Literature in English", "Fasihi ya Kiswahili", "Drama & Theatre", "Music",
+  "Sports & Recreation", "Community Service Learning",
+  // Traditional 8-4-4 school subjects
   "Mathematics", "English", "Kiswahili", "Biology", "Chemistry", "Physics",
   "Geography", "History", "CRE", "IRE", "HRE", "Agriculture",
   "Computer Studies", "Business Studies",
@@ -134,10 +156,12 @@ function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      <AnimatedBackground />
       <SiteHeader />
 
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
@@ -369,38 +393,105 @@ function LoadingState() {
   );
 }
 
+function normalize(s: string) {
+  return s.trim().toLowerCase().replace(/\s+/g, " ").replace(/[.,;:!?]+$/g, "");
+}
+
+function isChoiceType(type: string) {
+  const t = type.toLowerCase();
+  return t === "mcq" || t === "true_false" || t === "matching";
+}
+
 function QuizView({ quiz, onReset }: { quiz: Quiz; onReset: () => void }) {
-  const [revealed, setRevealed] = useState<Record<number, boolean>>({});
-  const [revealAll, setRevealAll] = useState(false);
+  // Per-question user input (selected option text OR typed answer)
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  // Whether the user has submitted that question (locks answer + reveals correctness)
+  const [submitted, setSubmitted] = useState<Record<number, boolean>>({});
+  const [submittedAll, setSubmittedAll] = useState(false);
+
+  const total = quiz.questions.length;
+  const checkedCount = Object.values(submitted).filter(Boolean).length;
+  const correctCount = quiz.questions.reduce((acc, q, i) => {
+    if (!submitted[i]) return acc;
+    const a = answers[i] ?? "";
+    return acc + (normalize(a) === normalize(q.answer) ? 1 : 0);
+  }, 0);
+
+  function submitOne(i: number) {
+    setSubmitted((s) => ({ ...s, [i]: true }));
+  }
+  function submitAll() {
+    const next: Record<number, boolean> = {};
+    quiz.questions.forEach((_, i) => (next[i] = true));
+    setSubmitted(next);
+    setSubmittedAll(true);
+  }
+  function reattempt() {
+    setAnswers({});
+    setSubmitted({});
+    setSubmittedAll(false);
+  }
 
   return (
     <div>
-      <div className="mb-5 flex items-start justify-between gap-3">
-        <div>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h2 className="font-display text-2xl font-bold tracking-tight">{quiz.title}</h2>
           <p className="mt-1 text-xs text-muted-foreground">{quiz.curriculumNote}</p>
         </div>
         <div className="flex flex-shrink-0 gap-2">
           <button
-            onClick={() => { setRevealAll((v) => !v); setRevealed({}); }}
+            onClick={reattempt}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary"
           >
-            {revealAll ? <><EyeOff className="h-3.5 w-3.5" /> Hide all</> : <><Eye className="h-3.5 w-3.5" /> Reveal all</>}
+            <RotateCcw className="h-3.5 w-3.5" /> Re-attempt
           </button>
           <button
             onClick={onReset}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary"
           >
-            <RotateCcw className="h-3.5 w-3.5" /> New
+            <Sparkles className="h-3.5 w-3.5" /> New quiz
           </button>
         </div>
       </div>
 
+      {/* Progress / score banner */}
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
+        <div className="text-xs font-semibold text-muted-foreground">
+          {checkedCount} / {total} attempted
+          {submittedAll && (
+            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-gradient-hero px-2 py-0.5 text-[11px] font-bold text-primary-foreground">
+              <Trophy className="h-3 w-3" /> Score: {correctCount} / {total}
+            </span>
+          )}
+        </div>
+        <button
+          onClick={submitAll}
+          disabled={submittedAll}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-hero px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-soft transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+        >
+          <Send className="h-3.5 w-3.5" /> Submit all & grade
+        </button>
+      </div>
+
       <ol className="space-y-4">
         {quiz.questions.map((q, i) => {
-          const show = revealAll || revealed[i];
+          const userAnswer = answers[i] ?? "";
+          const isSubmitted = !!submitted[i];
+          const isCorrect = isSubmitted && normalize(userAnswer) === normalize(q.answer);
+          const choice = isChoiceType(q.type) && q.options && q.options.length > 0;
+
           return (
-            <li key={i} className="rounded-xl border border-border/60 bg-background/60 p-4">
+            <li
+              key={i}
+              className={`rounded-xl border bg-background/70 p-4 transition-colors ${
+                isSubmitted
+                  ? isCorrect
+                    ? "border-success/50"
+                    : "border-destructive/40"
+                  : "border-border/60"
+              }`}
+            >
               <div className="flex items-start gap-3">
                 <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-hero text-xs font-bold text-primary-foreground">
                   {i + 1}
@@ -408,41 +499,100 @@ function QuizView({ quiz, onReset }: { quiz: Quiz; onReset: () => void }) {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium leading-relaxed text-foreground">{q.question}</p>
 
-                  {q.options && q.options.length > 0 && (
+                  {choice ? (
                     <ul className="mt-3 space-y-1.5">
                       {q.options.map((opt, j) => {
-                        const isCorrect = show && opt.trim().toLowerCase() === q.answer.trim().toLowerCase();
+                        const selected = userAnswer === opt;
+                        const optIsCorrect = normalize(opt) === normalize(q.answer);
+                        const showState = isSubmitted;
+
+                        const stateClass = !showState
+                          ? selected
+                            ? "border-primary/60 bg-primary/5"
+                            : "border-border/50 bg-card/40 hover:border-primary/30"
+                          : optIsCorrect
+                            ? "border-success/60 bg-success/10"
+                            : selected
+                              ? "border-destructive/60 bg-destructive/10"
+                              : "border-border/40 bg-card/30 opacity-70";
+
                         return (
-                          <li
-                            key={j}
-                            className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                              isCorrect
-                                ? "border-success/50 bg-success/10 text-foreground"
-                                : "border-border/50 bg-card/40"
-                            }`}
-                          >
-                            <span className="font-semibold text-muted-foreground">
-                              {String.fromCharCode(65 + j)}.
-                            </span>
-                            <span className="flex-1">{opt}</span>
-                            {isCorrect && <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-success" />}
+                          <li key={j}>
+                            <button
+                              type="button"
+                              disabled={isSubmitted}
+                              onClick={() =>
+                                setAnswers((a) => ({ ...a, [i]: opt }))
+                              }
+                              className={`flex w-full items-start gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${stateClass} ${isSubmitted ? "cursor-default" : "cursor-pointer"}`}
+                            >
+                              <span className="font-semibold text-muted-foreground">
+                                {String.fromCharCode(65 + j)}.
+                              </span>
+                              <span className="flex-1">{opt}</span>
+                              {showState && optIsCorrect && (
+                                <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-success" />
+                              )}
+                              {showState && selected && !optIsCorrect && (
+                                <XCircle className="h-4 w-4 flex-shrink-0 text-destructive" />
+                              )}
+                            </button>
                           </li>
                         );
                       })}
                     </ul>
+                  ) : (
+                    <textarea
+                      value={userAnswer}
+                      onChange={(e) =>
+                        setAnswers((a) => ({ ...a, [i]: e.target.value }))
+                      }
+                      disabled={isSubmitted}
+                      rows={3}
+                      placeholder="Type your answer here…"
+                      className="input-base mt-3 resize-y disabled:opacity-70"
+                    />
                   )}
 
-                  <button
-                    onClick={() => setRevealed((r) => ({ ...r, [i]: !r[i] }))}
-                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-glow"
-                  >
-                    {show ? <><EyeOff className="h-3.5 w-3.5" /> Hide answer</> : <><Eye className="h-3.5 w-3.5" /> Reveal answer</>}
-                  </button>
-
-                  {show && (
+                  {!isSubmitted ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => submitOne(i)}
+                        disabled={!userAnswer.trim()}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Send className="h-3.5 w-3.5" /> Check answer
+                      </button>
+                      <button
+                        onClick={() => submitOne(i)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                      >
+                        <Eye className="h-3.5 w-3.5" /> Skip & reveal
+                      </button>
+                    </div>
+                  ) : (
                     <div className="mt-3 space-y-3 rounded-lg border border-accent/40 bg-accent/30 p-3">
+                      <div className="flex items-center gap-2">
+                        {isCorrect ? (
+                          <>
+                            <CheckCircle2 className="h-4 w-4 text-success" />
+                            <span className="text-xs font-bold uppercase tracking-wide text-success">
+                              Correct
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-4 w-4 text-destructive" />
+                            <span className="text-xs font-bold uppercase tracking-wide text-destructive">
+                              {userAnswer.trim() ? "Not quite" : "Skipped"}
+                            </span>
+                          </>
+                        )}
+                      </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-accent-foreground">Answer</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-accent-foreground">
+                          Correct answer
+                        </p>
                         <p className="mt-1 text-sm font-medium text-foreground">{q.answer}</p>
                       </div>
                       {q.steps && q.steps.length > 0 && (
@@ -451,13 +601,19 @@ function QuizView({ quiz, onReset }: { quiz: Quiz; onReset: () => void }) {
                             Step-by-step solution
                           </p>
                           <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-foreground">
-                            {q.steps.map((s, k) => <li key={k}>{s}</li>)}
+                            {q.steps.map((s, k) => (
+                              <li key={k}>{s}</li>
+                            ))}
                           </ol>
                         </div>
                       )}
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-accent-foreground">Explanation</p>
-                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{q.explanation}</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-accent-foreground">
+                          Explanation
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                          {q.explanation}
+                        </p>
                       </div>
                     </div>
                   )}

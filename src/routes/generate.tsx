@@ -30,14 +30,51 @@ export const Route = createFileRoute("/generate")({
 });
 
 const SUBJECTS = [
+  // School subjects
   "Mathematics", "English", "Kiswahili", "Biology", "Chemistry", "Physics",
   "Geography", "History", "CRE", "IRE", "HRE", "Agriculture",
-  "Computer Studies", "Business Studies", "University course",
+  "Computer Studies", "Business Studies",
+  // College / TVET
+  "Communication Skills", "Entrepreneurship", "Life Skills",
+  "Accounting", "Economics", "ICT / Computing",
+  "Electrical Engineering", "Mechanical Engineering", "Building & Construction",
+  "Food & Beverage", "Hospitality", "Cosmetology", "Fashion & Design",
+  "Plumbing", "Automotive", "Welding & Fabrication",
+  "Nursing", "Clinical Medicine", "Pharmacy", "Public Health",
+  "Early Childhood Education", "Social Work",
+  // University units
+  "Calculus", "Linear Algebra", "Statistics & Probability",
+  "Microeconomics", "Macroeconomics", "Financial Accounting", "Marketing",
+  "Organizational Behaviour", "Project Management", "Research Methods",
+  "Data Structures & Algorithms", "Operating Systems", "Databases",
+  "Software Engineering", "Computer Networks", "Artificial Intelligence",
+  "Machine Learning", "Cyber Security", "Web Development",
+  "Anatomy", "Physiology", "Biochemistry", "Microbiology", "Pathology",
+  "Civil Engineering", "Electronics", "Thermodynamics", "Fluid Mechanics",
+  "Constitutional Law", "Criminal Law", "Contract Law",
+  "Psychology", "Sociology", "Political Science", "Philosophy",
+  "Literature", "Linguistics",
+  "Other (specify in topic)",
 ];
 
 const LEVELS = [
-  "Grade 4 (CBC)", "Grade 5 (CBC)", "Grade 6 (CBC)", "Grade 7 (JSS)", "Grade 8 (JSS)", "Grade 9 (JSS)",
-  "Form 1", "Form 2", "Form 3", "Form 4 (KCSE)", "University",
+  // Primary / Junior School (CBC/CBE)
+  "Grade 1 (CBC)", "Grade 2 (CBC)", "Grade 3 (CBC)",
+  "Grade 4 (CBC)", "Grade 5 (CBC)", "Grade 6 (CBC)",
+  "Grade 7 (JSS)", "Grade 8 (JSS)", "Grade 9 (JSS)",
+  // Senior School / Secondary
+  "Grade 10 (Senior School)", "Grade 11 (Senior School)", "Grade 12 (Senior School)",
+  "Form 1", "Form 2", "Form 3", "Form 4 (KCSE)",
+  // TVET / Colleges
+  "Artisan Certificate", "Craft Certificate", "Diploma (KNEC)",
+  "Higher Diploma", "TVET — Level 4", "TVET — Level 5", "TVET — Level 6",
+  // University
+  "University — Year 1", "University — Year 2", "University — Year 3",
+  "University — Year 4", "University — Year 5 / 6",
+  "Postgraduate Diploma", "Masters", "PhD",
+  // Professional bodies
+  "CPA", "ACCA", "CFA", "CISA",
+  "Professional certification / Other",
 ];
 
 type Mode = "topic" | "passage";

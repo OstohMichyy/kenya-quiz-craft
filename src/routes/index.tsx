@@ -11,7 +11,9 @@ import {
   Zap,
 } from "lucide-react";
 import { AnimatedBackground } from "@/components/animated-bg";
+import { GradBooksMark } from "@/components/grad-books-mark";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({

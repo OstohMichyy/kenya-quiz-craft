@@ -14,11 +14,12 @@ export function AnimatedBackground({ className = "" }: { className?: string }) {
     >
       {/* Image layer */}
       <div
-        className="absolute inset-0 animate-bg-pan bg-cover bg-center opacity-60 dark:opacity-30"
+        className="absolute inset-0 animate-bg-pan bg-cover bg-center opacity-95 dark:opacity-60"
         style={{ backgroundImage: `url(${heroBg})` }}
       />
-      {/* Soft wash so text stays readable */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/30 to-background/90" />
+      {/* Lighter wash so the photo stays vivid but text remains readable */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/5 to-background/70" />
+
 
       {/* Floating orbs */}
       <div className="absolute -top-24 left-[10%] h-80 w-80 animate-float-slow rounded-full bg-primary/25 blur-3xl" />

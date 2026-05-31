@@ -11,7 +11,9 @@ import {
   Zap,
 } from "lucide-react";
 import { AnimatedBackground } from "@/components/animated-bg";
+import { GradBooksMark } from "@/components/grad-books-mark";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,36 +78,34 @@ function LandingPage() {
         <AnimatedBackground />
 
 
-        <div className="mx-auto max-w-7xl px-4 pt-20 pb-24 sm:px-6 lg:px-8 lg:pt-28 lg:pb-32">
+        <div className="mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 sm:pt-20 sm:pb-24 lg:px-8 lg:pt-28 lg:pb-32">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
-              CBC · CBE · KNEC · KCSE aligned
-            </div>
-            <h1 className="mt-6 font-display text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+            <GradBooksMark className="mb-4 sm:mb-6" />
+            <h1 className="font-display text-3xl font-bold tracking-tight sm:text-5xl lg:text-7xl">
               Forge smarter <span className="text-gradient">study sessions</span> with AI
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground sm:text-xl">
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg lg:text-xl">
               StudyForge turns any topic or paragraph into instant quizzes, revision questions and
               KNEC-style marking schemes — built for Kenyan students, teachers and tutors.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
               <Link
                 to="/generate"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-hero px-7 py-3.5 text-base font-semibold text-primary-foreground shadow-elegant transition-all hover:scale-105 hover:shadow-glow"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-hero px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition-all hover:scale-105 hover:shadow-glow sm:w-auto sm:px-7 sm:py-3.5 sm:text-base"
               >
                 <Zap className="h-4 w-4 transition-transform group-hover:rotate-12" />
                 Generate a quiz
               </Link>
               <a
                 href="#features"
-                className="inline-flex items-center justify-center rounded-xl border border-border bg-card/60 px-7 py-3.5 text-base font-semibold text-foreground backdrop-blur transition-colors hover:bg-card"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-border bg-card/60 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:bg-card sm:w-auto sm:px-7 sm:py-3.5 sm:text-base"
               >
                 See features
               </a>
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-12">
               {subjects.map((s) => (
                 <span
                   key={s}

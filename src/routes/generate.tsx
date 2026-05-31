@@ -160,22 +160,19 @@ function GeneratePage() {
       <AnimatedBackground />
       <SiteHeader />
 
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-3 py-8 sm:px-6 sm:py-12 lg:px-8">
 
-        <div className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
-            AI-powered · curriculum-aware
-          </div>
-          <h1 className="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+        <div className="mb-6 text-center sm:mb-10">
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             Generate your <span className="text-gradient">quiz</span>
           </h1>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground sm:mt-3 sm:text-base">
             Pick a source, set difficulty, and let StudyForge do the rest.
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1fr_1.4fr]">
+
           {/* Form */}
           <div className="rounded-2xl border border-border/60 bg-gradient-card p-6 shadow-soft">
             {/* Mode toggle */}

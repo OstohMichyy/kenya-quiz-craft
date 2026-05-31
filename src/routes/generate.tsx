@@ -163,7 +163,11 @@ function GeneratePage() {
       <div className="mx-auto max-w-6xl px-3 py-8 sm:px-6 sm:py-12 lg:px-8">
 
         <div className="mb-6 text-center sm:mb-10">
-          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
+            AI-powered · curriculum-aware
+          </div>
+          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             Generate your <span className="text-gradient">quiz</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground sm:mt-3 sm:text-base">

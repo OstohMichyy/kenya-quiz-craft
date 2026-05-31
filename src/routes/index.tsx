@@ -105,7 +105,7 @@ function LandingPage() {
             </div>
 
 
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-12">
               {subjects.map((s) => (
                 <span
                   key={s}

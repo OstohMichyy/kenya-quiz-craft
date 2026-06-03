@@ -148,8 +148,12 @@ function GeneratePage() {
       setQuiz(result as Quiz);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Something went wrong.";
-      setError(msg.includes("429") ? "Rate limit reached. Please try again in a moment." :
-        msg.includes("402") ? "AI credits exhausted. Add credits in Workspace Settings → Usage." : msg);
+      setError(
+        msg.includes("PAYWALL") ? "PAYWALL"
+        : msg.includes("Unauthorized") ? "AUTH"
+        : msg.includes("429") ? "Rate limit reached. Please try again in a moment."
+        : msg.includes("402") ? "AI credits exhausted. Add credits in Workspace Settings → Usage."
+        : msg);
     } finally {
       setLoading(false);
     }
@@ -314,12 +318,23 @@ function GeneratePage() {
                 )}
               </button>
 
-              {error && (
+              {error === "PAYWALL" ? (
+                <div className="rounded-lg border border-primary/40 bg-primary/10 p-3 text-sm">
+                  <p className="font-semibold">You've used your free quiz.</p>
+                  <p className="mt-1 text-muted-foreground">Subscribe for KES 100/month to keep generating.</p>
+                  <a href="/subscribe" className="mt-2 inline-block rounded-md bg-gradient-hero px-3 py-1.5 text-xs font-semibold text-primary-foreground">Subscribe now →</a>
+                </div>
+              ) : error === "AUTH" ? (
+                <div className="rounded-lg border border-primary/40 bg-primary/10 p-3 text-sm">
+                  <p className="font-semibold">Please sign in</p>
+                  <a href="/auth" className="mt-2 inline-block rounded-md bg-gradient-hero px-3 py-1.5 text-xs font-semibold text-primary-foreground">Sign in →</a>
+                </div>
+              ) : error ? (
                 <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                   <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                   <span>{error}</span>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 

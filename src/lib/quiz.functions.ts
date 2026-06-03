@@ -143,6 +143,10 @@ ${data.passage}
         console.warn("StudyForge quiz generation reached the output limit", { usage });
       }
 
+      if (!isActive) {
+        await supabase.from("profiles").update({ free_quota_used: freeUsed + 1 }).eq("id", userId);
+      }
+
       return object;
     } catch (error) {
       if (NoObjectGeneratedError.isInstance(error)) {
@@ -178,7 +182,11 @@ Return valid JSON only, with this exact shape:
             maxOutputTokens: MAX_OUTPUT_TOKENS,
           });
 
-          return parseQuizFromText(text);
+          const parsed = parseQuizFromText(text);
+          if (!isActive) {
+            await supabase.from("profiles").update({ free_quota_used: freeUsed + 1 }).eq("id", userId);
+          }
+          return parsed;
         } catch (fallbackError) {
           console.error("StudyForge AI JSON fallback failed", fallbackError);
         }

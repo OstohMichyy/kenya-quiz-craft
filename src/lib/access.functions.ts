@@ -96,7 +96,7 @@ export const rejectPayment = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), notes: z.string().max(500).optional() }).parse(i))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const { error } = await supabase.rpc("reject_payment", { _payment_id: data.id, _notes: data.notes ?? null });
+    const { error } = await supabase.rpc("reject_payment", { _payment_id: data.id, _notes: data.notes });
     if (error) throw new Error(error.message);
     return { ok: true };
   });

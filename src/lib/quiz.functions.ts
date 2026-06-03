@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { generateObject, generateText, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const QuestionSchema = z.object({
   question: z.coerce.string().describe("The question text"),
@@ -66,11 +67,31 @@ const InputSchema = z.object({
   questionType: z.enum(["mcq", "short", "essay", "fill_blank", "true_false", "matching", "structured", "mixed"]),
 });
 
+const FREE_QUOTA = 1;
+
 export const generateQuiz = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Access check: active subscription OR free quota remaining
+    const [{ data: sub }, { data: profile }] = await Promise.all([
+      supabase.from("subscriptions").select("status,expires_at").eq("user_id", userId).maybeSingle(),
+      supabase.from("profiles").select("free_quota_used").eq("id", userId).maybeSingle(),
+    ]);
+    const now = Date.now();
+    const isActive = !!(sub?.status === "active" && sub.expires_at && new Date(sub.expires_at).getTime() > now);
+    const freeUsed = profile?.free_quota_used ?? 0;
+    const hasFree = freeUsed < FREE_QUOTA;
+
+    if (!isActive && !hasFree) {
+      throw new Error("PAYWALL: Subscribe for KES 100/month to keep generating quizzes.");
+    }
+
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
+
 
     const gateway = createLovableAiGatewayProvider(key);
     const model = gateway("google/gemini-3-flash-preview");
@@ -122,6 +143,10 @@ ${data.passage}
         console.warn("StudyForge quiz generation reached the output limit", { usage });
       }
 
+      if (!isActive) {
+        await supabase.from("profiles").update({ free_quota_used: freeUsed + 1 }).eq("id", userId);
+      }
+
       return object;
     } catch (error) {
       if (NoObjectGeneratedError.isInstance(error)) {
@@ -157,7 +182,11 @@ Return valid JSON only, with this exact shape:
             maxOutputTokens: MAX_OUTPUT_TOKENS,
           });
 
-          return parseQuizFromText(text);
+          const parsed = parseQuizFromText(text);
+          if (!isActive) {
+            await supabase.from("profiles").update({ free_quota_used: freeUsed + 1 }).eq("id", userId);
+          }
+          return parsed;
         } catch (fallbackError) {
           console.error("StudyForge AI JSON fallback failed", fallbackError);
         }
